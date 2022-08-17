@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row mb-5">
+    <div class="col-sm-12 col-md-8 mb-3">
+        <div class="card  shadow-sm p-4">
+            <img src="{{ feed.author.profile.avatar.url }}" class="rounded-circle" width="50" height="50">
+            {% if feed.author.profile.username %}
+                <a href="{% url 'profile-page' feed.author.pk %}" class="text-decoration-none">
+                    <h5><small>@{{ feed.author.profile.username }}</h5></small>
+                </a>
+            {% else %}
+                <a href="{% url 'profile-page' feed.author.pk %}" class="text-decoration-none">
+                    <h5><small>@{{ feed.author.username }}</h5></small>
+                </a>
+            {% endif %}
+            {% if feed.author == user %}
+                <small>
+                    <a href="{% url 'feeds:feed-update-page' feed.pk %}" class="text-decoration-none">Update</a>
+                </small>
+                <small>
+                    <a href="{% url 'feeds:feed-delete-page' feed.pk %}" class="text-decoration-none text-danger">Delete</a>
+                </small>
+            {% endif %}
+            {% if feed.image %}
+                <a href="{{ feed.image.url }}">
+                    <img src="{{ feed.image.url }}" class="mx-auto d-block img-fluid rounded" width="400" height="400">
+                </a>
+            {% endif %}
+            <p {% if feed.image %} class="mt-3 text-center"{% else %} class="mt-3"{% endif %}>
+                <strong>{% if feed.author.profile.username %}{{ feed.author.profile.username }}{% else %}{{ feed.author }}{% endif %}</strong> 
+                {{ feed.body }}</p>
+            <p {% if feed.image %}class="text-center"{% endif %}>
+                <small class="text-muted">
+                    {{ feed.created|timesince }} ago
+                </small>
+            </p>
+
+            {% include 'feeds/like_feed_form_component.html' %}
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ comment_form|crispy }}
+                <button type="submit" class="btn btn-outline-info mt-2">Post</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-sm-8 col-md-4">
+        <div class="card shadow-sm p-4">
+            <p class="text-muted my-1"><small>{{ feed.comment_set.all.count }} Comment{{ feed.comment_set.all.count|pluralize }}</small></p>
+            {% for comment in comments %}
+                {% if comment.author == user %}
+                    <small>
+                        <a class="text-decoration-none" href="{% url 'feeds:update-comment-page' comment.pk %}">Update</a>
+                    </small>
+                    <small>
+                        <a class="text-decoration-none text-danger" href="{% url 'feeds:delete-comment-page' comment.pk %}">Delete</a>
+                    </small>
+                {% endif %}
+                <img src="{{ comment.author.profile.avatar.url }}" class="rounded-circle" width="30" height="30">
+                <p class="my-1">
+                    <strong>
+                    {% if comment.author.profile.username %}
+                        {{ comment.author.profile.username }}
+                    {% else %}
+                        {{ comment.author.username }}
+                    {% endif %}
+                    </strong> {{ comment.body }}</p>
+                <p class="text-muted mb-3 border-bottom"><small>{{ comment.created|timesince }} ago</small></p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

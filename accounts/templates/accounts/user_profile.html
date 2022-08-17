@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row text-center mb-5">
+    <div class="col-sm-8 col-md-6">
+        <div class="card shadow-sm p-2 mb-3">
+            <h1 class="lead my-4 border-bottom"><b>User Profile Info</b></h1>
+            <a href="{{ profile.avatar.url }}">
+                <img src="{{ profile.avatar.url }}" class="img-fluid rounded mx-auto d-block" width="300" height="300">
+            </a>
+            {% if profile.username %}
+                <p class="lead"><strong>{{ profile.username }}</strong></p>
+            {% else %}
+                <p class="lead"><strong>{{ profile.user.username }}</strong></p>
+            {% endif %}
+
+            <p>Followers: {{ num_of_followers }}</p>
+            {% if request.user != profile.user %}
+                {% if following == True %}
+                    <form method="POST" action="{% url 'remove-follower' profile.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger mb-2">Unfollow</button>
+                    </form>
+                {% endif %}
+
+                {% if following == False %}
+                    <form method="POST" action="{% url 'add-follower' profile.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-info mb-2">Follow</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            {% if profile.gender %}
+                {% if profile.gender == 'm' %}
+                    <p class="lead my-0">Gender: <b>Male</b></p>
+                {% elif profile.gender == 'f' %}
+                    <p class="lead my-0">Gender: <b>Female</b></p>
+                {% else %}
+                    <p class="lead my-0">Gender: <b>Other</b></p>
+                {% endif %}
+            {% endif %}
+
+            {% if profile.birthday %}
+                <p class="lead my-0">Born on: <b>{{ profile.birthday }}</b></p>
+            {% endif %}
+
+            {% if profile.location %}
+                <p class="lead my-0">Lives in: <b>{{ profile.location }}</b></p>
+            {% endif %}
+
+            {% if profile.status %}
+                <p class="lead my-0">Status: <b>{{ profile.status|title }}</b></p>
+            {% endif %}
+
+            {% if profile.bio %}
+                <p class="lead my-0 bg-light p-3 mt-2">Bio: <br><b>{{ profile.bio }}</b></p>
+            {% endif %}
+        </div>
+    </div>
+    {% if profile.user == request.user %}
+        <div class="col-sm-4 col-md-6">
+            <div class="card shadow-sm p-3">
+                <h1 class="lead my-4 border-bottom"><b>Update Profile Info</b></h1>
+                <fieldset>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form|crispy }}
+                        </div>
+                        <button type="submit" class="btn btn-outline-success mt-3">Update</button>
+                    </form>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-5">
+            <div class="col-sm-12 col-md-12">
+                <h1 class="lead my-4 border-bottom"><b>Your Timeline</b></h1>
+                <div class="card shadow-sm p-3">
+                    {% for info in user.post_set.all %}
+                        <div class="position-relative my-3">
+                            {% if info.image %}
+                                <img src="{{ info.image.url }}" class="img-fluid rounded mx-auto d-block" width="400" height="400">
+                            {% endif %}
+                            {{ info.body }}
+                            <small class="text-muted">{{ info.likes.all.count }} Like{{ info.likes.all.count|pluralize }}</small>
+                            <small class="text-muted">{{ info.comment_set.all.count }} Comment{{ info.comment_set.all.count|pluralize }}</small>
+                            <a href="{% url 'feeds:feed-detail-page' info.pk %}" class="stretched-link"></a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="col-sm-8 col-md-6 mb-3">
+            <div class="card shadow-sm p-4">
+                {% if profile.username %}
+                    <h1 class="lead my-2 border-bottom">
+                    <b>posts ({{ profile.user.post_set.all.count }})</b></h1>
+                {% else %}
+                    <h1 class="lead my-2 border-bottom">
+                    <b>posts ({{ profile.user.post_set.all.count }})</b</h1>
+                {% endif %}
+                {% for feed in user.post_set.all %}
+                <div class="mt-4 border-bottom">
+                    <img src="{{ feed.author.profile.avatar.url }}" class="rounded-circle" width="50" height="50">
+                    {% if feed.author.profile.username %}
+                        <h5 style="font-size:small">
+                            {{ feed.author.profile.username }}
+                        </h5>
+                    {% else %}
+                        <h5 style="font-size:small">{{ feed.author.username }}</h5>
+                    {% endif %}
+                    
+                    <div class="position-relative mt-3">
+                        {% if feed.image %}
+                            <img src="{{ feed.image.url }}" class="mx-auto d-block img-fluid rounded" width="100%">
+                        {% endif %}
+                    
+                        <p style="font-size:medium" 
+                        {% if feed.image %}
+                        class="text-center"
+                        {% endif %}
+                        >
+                            <strong>{% if feed.author.profile.username %}{{ feed.author.profile.username }}{% else %}{{ feed.author }}{% endif %}</strong> 
+                            {{ feed.body }}</p>
+                        <p {% if feed.image %} class="text-muted my-2 text-center" {% else %}class="text-muted my-2"{% endif %}>
+                            <small>
+                                {{ feed.comment_set.all.count }} Comment{{ feed.comment_set.all.count|pluralize}}
+                            </small>
+                        </p>
+                        <p {% if feed.image %}class="text-center"{% endif %}><small class="text-muted">{{ feed.created|timesince }} ago</small></p>
+                        <a href="{% url 'feeds:feed-detail-page' feed.pk %}" class="stretched-link"></a>
+                    </div>
+                    {% include 'feeds/like_feed_form_component.html' %}
+                </div>
+                {% empty %}
+                    <div class="row">
+                        <div class="col-sm-12 col-nd-8">
+                            <div class="card  shadow-sm p-4">
+                                No feeds in here yet!
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

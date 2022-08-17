@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row justify-content-center text-center">
+    <div class="col-sm-12 col-md-12">
+        <div class="bg-white p-3 shadow-lg">
+            <h1>Welcome to PlanetShare App</h1>
+            <p>Discover people, follow and share your memories and photos anytime, anywhere.</p>
+            <img src="{% static 'images/bg.jpg' %}" class="img-fluid rounded">
+        </div>
+        <div class="d-grid gap-2">
+            <a class="btn btn-outline-primary mt-2" href="{% url 'register-page' %}">Join</a>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

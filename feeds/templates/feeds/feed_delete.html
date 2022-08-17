@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a class="btn btn-outline-warning mb-3" href="{% url 'feeds:feed-detail-page' object.pk %}"><<< Go to feed</a>
+<div class="row justify-content-center">
+    <div class="col-md-sm-8 col-md-6">
+        <div class="card shadow-sm p-5 bg-light">
+            <h2 class="lead mb-4 text-center">Delete Post!</h2>
+            <div class="p-5 bg-info text-light text-center display-6">
+                Are you sure you want to delete the post ?
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger mt-3">Delete</button>
+                </div>
+            </form>
+        </div> 
+    </div>
+</div> 
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-12 col-md-8 mb-3">
+        <div class="card  shadow-sm p-4">
+            <h5>Create New Post</h5>
+            <hr>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-outline-info mt-2">Post</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-8 col-md-8">
+        {% for feed in feeds %}
+            <div class="card  shadow-sm p-4 mb-3">
+                <img src="{{ feed.author.profile.avatar.url }}" class="rounded-circle" width="50" height="50">
+                    {% if feed.author.profile.username %}
+                        <h5 style="font-size:small">
+                            <a class="text-decoration-none" href="{% url 'profile-page' feed.author.pk %}">
+                                @{{ feed.author.profile.username }}
+                            </a>
+                        </h5>
+                    {% else %}
+                        <h5 style="font-size:small" class="text-decoration-none">
+                            <a class="text-decoration-none" href="{% url 'profile-page' feed.author.pk %}">
+                                @{{ feed.author.username }}</h5>
+                            </a>
+                    {% endif %}
+                    <div class="position-relative mt-3">
+                        {% if feed.image %}
+                            <img src="{{ feed.image.url }}" class="mx-auto d-block img-fluid rounded" width="100%">
+                        {% endif %}
+                    
+                        <p style="font-size:medium" 
+                        {% if feed.image %}
+                        class="text-center"
+                        {% endif %}
+                        >
+                            <strong>{% if feed.author.profile.username %}{{ feed.author.profile.username }}{% else %}{{ feed.author }}{% endif %}</strong> 
+                            {{ feed.body }}
+                        </p>
+
+                        <span><small {% if feed.image %} class="text-muted my-2 text-center" {% else %}class="text-muted my-2"{% endif %}>
+                            {{ feed.comment_set.all.count }} Comment{{ feed.comment_set.all.count|pluralize}}
+                        </small></span>
+                        <p><small class="text-muted">{{ feed.created|timesince }} ago</small></p>
+                        <a href="{% url 'feeds:feed-detail-page' feed.pk %}" class="stretched-link"></a>
+                    </div>
+                    {% include 'feeds/like_feed_form_component.html' %}
+            </div>
+        {% empty %}
+            <div class="row">
+                <div class="col-sm-12 col-nd-8">
+                    <div class="card  shadow-sm p-4 mb-3">
+                        No feeds in here yet!, View the <a href="{% url 'people-page' %}" class="text-decoration-none">people</a> page and follow other users to see their posts here
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-sm-4 col-md-4 mb-5">
+        <div class="card shadow-sm p-3 text-center">
+            <h2>About</h2>
+            <p class="mb-0">Developed by <b>Happy Banda</b></p>
+            <p class="mt-0"><small>Follow me on <a href="#">Github</a></small></p>
+            <div class="lead">All rights reserved {% now 'Y' %}.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<form method="POST" action="{% url 'feeds:like-feed' feed.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <div class="my-2">
+        {% if request.user in feed.likes.all %}
+            <button type="submit" class="btn btn-info">Liked</button>
+        {% else %}
+            <button type="submit" class="btn btn-outline-info">Like</button>
+        {% endif %}
+        <span>
+            <small class="text-muted">
+                {{ feed.likes.all.count }} Like{{ feed.likes.count|pluralize }}
+            </small>
+        </span>
+    </div>
+</form>

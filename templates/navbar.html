@@ -1,0 +1,26 @@
+<ul class="nav nav-pills nav-justified fixed-bottom shadow bg-dark">
+    {% if not user.is_authenticated %}
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="{% url 'home-page' %}">Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'register-page' %}">Register</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login-page' %}">Login</a>
+    </li>
+    {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'feeds:feeds-page' %}">Feeds</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'people-page' %}">People</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'profile-page' request.user.pk %}">Profile</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'logout-page' %}">Logout</a>
+    </li>
+    {% endif %}
+  </ul>
