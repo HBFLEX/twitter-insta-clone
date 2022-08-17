@@ -1,3 +1,4 @@
 media/
 static/images/
 db.sqlite3
+secret_key.json
